@@ -1,0 +1,3 @@
+python entrenar.py --modelo configuracion/yolov3-custom.cfg --configuracion_entrenamiento configuracion/rutas.data --peso_preentrenados pesosDarknet/darknet53.conv.74 --tamanio_lote 1 --epochs 50
+
+

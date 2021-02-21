@@ -1,0 +1,4 @@
+classes= 1
+entrenar=datos/train.txt
+validos=datos/valid.txt
+nombres=datos/classes.names

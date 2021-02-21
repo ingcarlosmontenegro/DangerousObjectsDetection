@@ -1,0 +1,2 @@
+python detectar.py --ruta_nombre_clases datos/clases.names --ruta_pesos checkpoint.pth --umbral_confianza 0.95 --webcam 0 --directorio_video video.mp4
+
