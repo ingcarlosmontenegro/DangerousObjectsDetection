@@ -11,27 +11,7 @@ import torch
 from torch.autograd import Variable
 
 
-#combierte la imagen a RGB
-def Convertir_RGB(img):
-    # Convertir Blue, green, red a Red, green, blue
-    b = img[:, :, 0].copy()
-    g = img[:, :, 1].copy()
-    r = img[:, :, 2].copy()
-    img[:, :, 0] = r
-    img[:, :, 1] = g
-    img[:, :, 2] = b
-    return img
 
-#combierte la imagen a BGR
-def Convertir_BGR(img):
-    # Convertir red, blue, green a Blue, green, red
-    r = img[:, :, 0].copy()
-    g = img[:, :, 1].copy()
-    b = img[:, :, 2].copy()
-    img[:, :, 0] = b
-    img[:, :, 1] = g
-    img[:, :, 2] = r
-    return img
 
 
 
@@ -135,3 +115,25 @@ if __name__ == "__main__":
     out.release()
     cap.release()
     cv2.destroyAllWindows()
+#combierte la imagen a BGR
+def Convertir_BGR(img):
+    # Convertir red, blue, green a Blue, green, red
+    r = img[:, :, 0].copy()
+    g = img[:, :, 1].copy()
+    b = img[:, :, 2].copy()
+    img[:, :, 0] = b
+    img[:, :, 1] = g
+    img[:, :, 2] = r
+    return img
+
+
+#combierte la imagen a RGB
+def Convertir_RGB(img):
+    # Convertir Blue, green, red a Red, green, blue
+    b = img[:, :, 0].copy()
+    g = img[:, :, 1].copy()
+    r = img[:, :, 2].copy()
+    img[:, :, 0] = r
+    img[:, :, 1] = g
+    img[:, :, 2] = b
+    return img
