@@ -85,7 +85,13 @@ if __name__ == "__main__":
             frame = cv2.resize(frame, (1280, 960), interpolation=cv2.INTER_CUBIC)
 
             #LA imagen viene en Blue, Green, Red y la convertimos a RGB que es la entrada que requiere el modelo
-            RGBimg=Convertir_RGB(frame)
+            #RGBimg=Convertir_RGB(frame)
+            b = frame[:, :, 0].copy()
+            g = frame[:, :, 1].copy()
+            r = frame[:, :, 2].copy()
+            frame[:, :, 0] = r
+            frame[:, :, 1] = g
+            frame[:, :, 2] = b
             imgTensor = transforms.ToTensor()(RGBimg)
             imgTensor, _ = pad_to_square(imgTensor, 0)
             imgTensor = resize(imgTensor, 416)
@@ -123,8 +129,8 @@ if __name__ == "__main__":
 
                             msg['From'] = "csrojasm123@gmail.com"
                             msg['To'] = "csrojasm@correo.udistrital.edu.co"
-                            msg['Subject'] = "ALERTA OBJETO, UNA "+format(classes[int(cls_pred)]+" HA SIDO VISUALIZADA"
-                            msg.attach(MIMEText("Se ha detectado una "+format(classes[int(cls_pred)]+" en el recinto, por favor tomas las medidas necesarias para enfretar esta emergencia."))
+                            msg['Subject'] = "ALERTA OBJETO, UNA Pistola HA SIDO VISUALIZADA"
+                            msg.attach(MIMEText("Se ha detectado una Pistola     en el recinto, por favor tomas las medidas necesarias para enfretar esta emergencia."))
 
                             out2 = cv2.VideoWriter('imagenesSalida/imagen1.jpg',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (1280,960))
                             out2.write(Convertir_BGR(RGBimg))
