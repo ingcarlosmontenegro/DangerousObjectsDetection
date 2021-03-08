@@ -53,7 +53,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("cuda" if torch.cuda.is_available() else "cpu")
     #carga el modelo con los parametros dados por el usuario, el cual es YOLOv3 presonalizado segun la necesidad para n clases
-    model = Darknet(parametros.modelo, tamanio_cada_imagen=parametros.tamanio_cada_imagen).to(device)
+    model = Darknet(parametros.modelo, parametros.tamanio_cada_imagen).to(device)
 
     #se pregunta si los pesos envidados son los que por defecto otroga Darknet o son de un entrenamiento personalizado
     #los pesos por default tienen una extencion .weights
@@ -119,8 +119,8 @@ if __name__ == "__main__":
 
                         msg['From'] = "csrojasm123@gmail.com"
                         msg['To'] = "csrojasm@correo.udistrital.edu.co"
-                        msg['Subject'] = "ALERTA OBJETO, UNA "+format(classes[int(cls_pred)]+" HA SIDO VISUALIZADA"
-                        msg.attach(MIMEText("Se ha detectado una "+format(classes[int(cls_pred)]+" en el recinto, por favor tomas las medidas necesarias para enfretar esta emergencia."))
+                        msg['Subject'] = "ALERTA OBJETO, UNA Pistola HA SIDO VISUALIZADA"
+                        msg.attach(MIMEText("Se ha detectado una Pistola en el recinto, por favor tomas las medidas necesarias para enfretar esta emergencia."))
 
                         out2 = cv2.VideoWriter('imagenesSalida/imagen%d.jpg',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (1280,960))
                         out2.write(Convertir_BGR(RGBimg))
