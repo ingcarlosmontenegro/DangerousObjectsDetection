@@ -1,13 +1,18 @@
 from __future__ import division
-from modelos import *
+
+
+
 from utils.utils import *
 from utils.datasets import *
+from modelos import *
+
 import os
 import sys
 import argparse
 import cv2
-from PIL import Image
 import torch
+
+from PIL import Image
 from torch.autograd import Variable
 
 
@@ -23,10 +28,13 @@ if __name__ == "__main__":
     parser.add_argument("--ruta_nombre_clases", type=str, default="datos/clases.names", help="ruta al archivo de etiqueta de clase")
     parser.add_argument("--umbral_confianza", type=float, default=0.8, help="umbral de confianza del objeto")
     parser.add_argument("--webcam", type=int, default=1,  help="se utilizara una webcam 1 = Sí, 0 = no" )
+    parser.add_argument("--directorio_video", type=str, help="Directorio del video para la deteccion")
     parser.add_argument("--umbral_iou", type=float, default=0.4, help="umbral de iou para supresión no máxima")
     parser.add_argument("--tamanio_cada_imagen", type=int, default=416, help="tamaño de cada dimensión de la imagen")
-    parser.add_argument("--directorio_video", type=str, help="Directorio del video para la deteccion")
+
     parametros = parser.parse_args()
+
+
     #mostramos los parametros descritos por el usuario
     print(parametros)
     #se valida si el sistema posee targeta grafica nvidia para trabajar con cuda de lo contrario solo CPU
@@ -35,13 +43,9 @@ if __name__ == "__main__":
     #carga el modelo con los parametros dados por el usuario, el cual es YOLOv3 presonalizado segun la necesidad para n clases
     model = Darknet(parametros.modelo, img_size=parametros.tamanio_cada_imagen).to(device)
 
-    #se pregunta si los pesos envidados son los que por defecto otroga Darknet o son de un entrenamiento personalizado
-    #los pesos por default tienen una extencion .weights
-    if parametros.ruta_pesos.endswith(".weights"):
-        model.load_darknet_weights(parametros.ruta_pesos)
-    else:
+
     #los pesos personalizados de entrenamiento tienen una extencion de .pth
-        model.load_state_dict(torch.load(parametros.ruta_pesos))
+    model.load_state_dict(torch.load(parametros.ruta_pesos))
 
     model.eval()
     #se cargan los nombres de las clases(objetos) que se desea que se detecte
@@ -99,7 +103,9 @@ if __name__ == "__main__":
                     frame = cv2.rectangle(frame, (x1, y1 + box_h), (x2, y1), color, 5)
                     cv2.putText(frame, classes[int(cls_pred)], (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 5)# Nombre de la clase detectada
                     cv2.putText(frame, str("%.2f" % float(conf)), (x2, y2 - box_h), cv2.FONT_HERSHEY_SIMPLEX, 0.5,color, 5) # Certeza de prediccion de la clase
-
+                    #se llama al metodo que genera la notificación de alarma
+                    notificarAlarma(format(classes[int(cls_pred)]);
+                    
         #Se Converte de vuelta a BGR para que cv2 pueda desplegarlo en los colores correctos
         #si es en webcam este procemimiento es diferente que con un video
         if parametros.webcam==1:

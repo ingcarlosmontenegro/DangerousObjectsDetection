@@ -1,12 +1,12 @@
 from __future__ import division
 
-from modelos import *
 from utils.logger import *
 from utils.utils import *
 from utils.datasets import *
+from modelos import *
 from utils.parse_config import *
-from prueba import evaluate
 
+from prueba import evaluate
 from terminaltables import AsciiTable
 
 import os
@@ -16,9 +16,10 @@ import datetime
 import argparse
 
 import torch
+
+from torchvision import transforms
 from torch.utils.data import DataLoader
 from torchvision import datasets
-from torchvision import transforms
 from torch.autograd import Variable
 import torch.optim as optim
 
@@ -31,6 +32,8 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=500, help="numero de epocas a realizar")
     parser.add_argument("--tamanio_lote", type=int, default=8, help="tamaño de cada lote de imagenes(enviadas simultaneamente para entrenar)")
     parser.add_argument("--n_cpu", type=int, default=8, help="numero de subprocesos de la CPU a utilizar durante la generación de lotes ")
+
+
     parametrosEntrenamiento = parser.parse_args()
     print(parametrosEntrenamiento)
 
