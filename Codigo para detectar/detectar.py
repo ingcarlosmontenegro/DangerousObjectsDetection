@@ -172,7 +172,7 @@ if __name__ == "__main__":
             #Se Converte de vuelta a BGR para que cv2 pueda desplegarlo en los colores correctos
             #si es en webcam este procemimiento es diferente que con un video
             #llama al out para que se escriba la imagen, envia la imagen convertida a bgr
-            img = RGBimg
+
             r = img[:, :, 0].copy()
             g = img[:, :, 1].copy()
             b = img[:, :, 2].copy()
@@ -180,7 +180,7 @@ if __name__ == "__main__":
             img[:, :, 1] = g
             img[:, :, 2] = r
             out.write(img)
-            cv2.imshow('frame', RGBimg)
+            cv2.imshow('frame', img)
             out.release()
             cap.release()
             #except:
