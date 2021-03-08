@@ -86,13 +86,15 @@ if __name__ == "__main__":
 
             #LA imagen viene en Blue, Green, Red y la convertimos a RGB que es la entrada que requiere el modelo
             #RGBimg=Convertir_RGB(frame)
-            b = frame[:, :, 0].copy()
-            g = frame[:, :, 1].copy()
-            r = frame[:, :, 2].copy()
-            frame[:, :, 0] = r
-            frame[:, :, 1] = g
-            frame[:, :, 2] = b
-            imgTensor = transforms.ToTensor()(RGBimg)
+            img = frame
+            b = img[:, :, 0].copy()
+            g = img[:, :, 1].copy()
+            r = img[:, :, 2].copy()
+            img[:, :, 0] = r
+            img[:, :, 1] = g
+            img[:, :, 2] = b
+            #imgTensor = transforms.ToTensor()(RGBimg)
+            imgTensor = transforms.ToTensor()(img)
             imgTensor, _ = pad_to_square(imgTensor, 0)
             imgTensor = resize(imgTensor, 416)
             imgTensor = imgTensor.unsqueeze(0)
