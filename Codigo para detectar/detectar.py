@@ -27,27 +27,7 @@ from torch.autograd import Variable
 
 # ----------------------------------------------------------------------------------------------------------------------------------------- #
 
-#combierte la imagen a RGB
-def Convertir_RGB(img):
-    # Convertir Blue, green, red a Red, green, blue
-    b = img[:, :, 0].copy()
-    g = img[:, :, 1].copy()
-    r = img[:, :, 2].copy()
-    img[:, :, 0] = r
-    img[:, :, 1] = g
-    img[:, :, 2] = b
-    return img
 
-#combierte la imagen a BGR
-def Convertir_BGR(img):
-    # Convertir red, blue, green a Blue, green, red
-    r = img[:, :, 0].copy()
-    g = img[:, :, 1].copy()
-    b = img[:, :, 2].copy()
-    img[:, :, 0] = b
-    img[:, :, 1] = g
-    img[:, :, 2] = r
-    return img
 
 
 
@@ -57,7 +37,7 @@ if __name__ == "__main__":
     parser.add_argument("--modelo", type=str, default="configuracion/yolov3.cfg", help="ruta al archivo de definición del modelo ")
     parser.add_argument("--ruta_pesos", type=str, default="pesos/checkpoint.pth", help="ruta al archivo de pesos")
     parser.add_argument("--ruta_nombre_clases", type=str, default="datos/clases.names", help="ruta al archivo de etiqueta de clase")
-    parser.add_argument("--ruta_imagenes", type=str, default="imagenes/1.jpg", help="ruta de la carpeta de imagenes")
+    parser.add_argument("--ruta_imagenes", type=str, default="imagenes/", help="ruta de la carpeta de imagenes")
     parser.add_argument("--umbral_confianza", type=float, default=0.8, help="umbral de confianza del objeto")
     parser.add_argument("--webcam", type=int, default=1,  help="se utilizara una webcam 1 = Sí, 0 = no" )
     parser.add_argument("--umbral_iou", type=float, default=0.4, help="umbral de iou para supresión no máxima")
@@ -89,98 +69,106 @@ if __name__ == "__main__":
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
     #se carga el tipo de video dependiendo de la opcion del usuario, si es 1 es la webcam de la maquina, de lo contrario un video con la ruta dada
     if parametros.detectar_multiplesImagenes == 1:
-        #llama al metodo VideoCapture de la libreria openCV y envia como parametro la ruta del video que se desea detectar
-        cap = cv2.VideoCapture(parametros.ruta_imagenes)
-        #guarda un archivo .mp4(video) donde se encuentran los resultados de la detección
-        out = cv2.VideoWriter('imagen%d.jpg',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (1280,960))
-        #se le asigna un color random a los cuadros que encerrarán las detecciones
-        colors = np.random.randint(0, 255, size=(len(classes), 3), dtype="uint8")
+        contador = 0
+        while(True):
+            try:
+                contador = contador + 1
+                #llama al metodo VideoCapture de la libreria openCV y envia como parametro la ruta del video que se desea detectar
+                cap = cv2.VideoCapture(parametros.ruta_imagenes+contador+".jpg")
+                #guarda un archivo .jpg(imagen) donde se encuentran los resultados de la detección
+                out = cv2.VideoWriter('imagen%d.jpg',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (1280,960))
+                #se le asigna un color random a los cuadros que encerrarán las detecciones
+                colors = np.random.randint(0, 255, size=(len(classes), 3), dtype="uint8")
 
-        a=[]
-        ret, frame = cap.read()
-        frame = cv2.resize(frame, (1280, 960), interpolation=cv2.INTER_CUBIC)
+                a=[]
+                ret, frame = cap.read()
+                frame = cv2.resize(frame, (1280, 960), interpolation=cv2.INTER_CUBIC)
 
-        #LA imagen viene en Blue, Green, Red y la convertimos a RGB que es la entrada que requiere el modelo
-        RGBimg=Convertir_RGB(frame)
-        imgTensor = transforms.ToTensor()(RGBimg)
-        imgTensor, _ = pad_to_square(imgTensor, 0)
-        imgTensor = resize(imgTensor, 416)
-        imgTensor = imgTensor.unsqueeze(0)
-        imgTensor = Variable(imgTensor.type(Tensor))
+                #LA imagen viene en Blue, Green, Red y la convertimos a RGB que es la entrada que requiere el modelo
+                RGBimg=Convertir_RGB(frame)
+                imgTensor = transforms.ToTensor()(RGBimg)
+                imgTensor, _ = pad_to_square(imgTensor, 0)
+                imgTensor = resize(imgTensor, 416)
+                imgTensor = imgTensor.unsqueeze(0)
+                imgTensor = Variable(imgTensor.type(Tensor))
 
-        #recoge las detecciones que se encontraron
-        with torch.no_grad():
-            detections = model(imgTensor)
-            detections = non_max_suppression(detections, parametros.umbral_confianza, parametros.umbral_iou)
+                #recoge las detecciones que se encontraron
+                with torch.no_grad():
+                    detections = model(imgTensor)
+                    detections = non_max_suppression(detections, parametros.umbral_confianza, parametros.umbral_iou)
 
-        #cada una de las detecciones debe ser dibjada en el frame
-        for detection in detections:
-            if detection is not None:
+                #cada una de las detecciones debe ser dibjada en el frame
+                for detection in detections:
+                    if detection is not None:
 
-                detection = rescale_boxes(detection, parametros.tamanio_cada_imagen, RGBimg.shape[:2])
+                        detection = rescale_boxes(detection, parametros.tamanio_cada_imagen, RGBimg.shape[:2])
 
-                for x1, y1, x2, y2, conf, cls_conf, cls_pred in detection:
-                    box_w = x2 - x1
-                    box_h = y2 - y1
-                    color = [int(c) for c in colors[int(cls_pred)]]
-                    #se imprime por consola la ubicación de la detección detección
-                    print("Se detectó {} en X1: {}, Y1: {}, X2: {}, Y2: {}".format(classes[int(cls_pred)], x1, y1, x2, y2))
-                    #se dibuja el cuadro de detección en el frame
-                    frame = cv2.rectangle(frame, (x1, y1 + box_h), (x2, y1), color, 5)
-                    cv2.putText(frame, classes[int(cls_pred)], (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 5)# Nombre de la clase detectada
-                    cv2.putText(frame, str("%.2f" % float(conf)), (x2, y2 - box_h), cv2.FONT_HERSHEY_SIMPLEX, 0.5,color, 5) # Certeza de prediccion de la clase
+                        for x1, y1, x2, y2, conf, cls_conf, cls_pred in detection:
+                            box_w = x2 - x1
+                            box_h = y2 - y1
+                            color = [int(c) for c in colors[int(cls_pred)]]
+                            #se imprime por consola la ubicación de la detección detección
+                            print("Se detectó {} en X1: {}, Y1: {}, X2: {}, Y2: {}".format(classes[int(cls_pred)], x1, y1, x2, y2))
+                            #se dibuja el cuadro de detección en el frame
+                            frame = cv2.rectangle(frame, (x1, y1 + box_h), (x2, y1), color, 5)
+                            cv2.putText(frame, classes[int(cls_pred)], (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 5)# Nombre de la clase detectada
+                            cv2.putText(frame, str("%.2f" % float(conf)), (x2, y2 - box_h), cv2.FONT_HERSHEY_SIMPLEX, 0.5,color, 5) # Certeza de prediccion de la clase
 
-                    #se envia el correo electronico con el aviso
-                    if parametros.tipo_alarma == 0:
-                        # create message object instance
+                            #se envia el correo electronico con el aviso
+                            if parametros.tipo_alarma == 0:
+                                # create message object instance
 
-                        msg = MIMEMultipart()
-                        objeto = "Pistola";
+                                msg = MIMEMultipart()
+                                objeto = "Pistola";
 
-                        msg['From'] = "csrojasm123@gmail.com"
-                        msg['To'] = "csrojasm@correo.udistrital.edu.co"
-                        msg['Subject'] = "ALERTA OBJETO, UNA "+format(classes[int(cls_pred)]+" HA SIDO VISUALIZADA"
-                        msg.attach(MIMEText("Se ha detectado una "+format(classes[int(cls_pred)]+" en el recinto, por favor tomas las medidas necesarias para enfretar esta emergencia."))
+                                msg['From'] = "csrojasm123@gmail.com"
+                                msg['To'] = "csrojasm@correo.udistrital.edu.co"
+                                msg['Subject'] = "ALERTA OBJETO, UNA "+format(classes[int(cls_pred)]+" HA SIDO VISUALIZADA"
+                                msg.attach(MIMEText("Se ha detectado una "+format(classes[int(cls_pred)]+" en el recinto, por favor tomas las medidas necesarias para enfretar esta emergencia."))
 
-                        file = open("C:\\segunda(163).png", "rb")
-                        attach_image = MIMEImage(file.read())
-                        attach_image.add_header('Content-Disposition', 'attachment; filename = "Alarma"')
-                        msg.attach(attach_image)
+                                out2 = cv2.VideoWriter('imagenesSalida/imagen1.jpg',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (1280,960))
+                                out2.write(Convertir_BGR(RGBimg))
+                                file = open("imagenesSalida/imagen1.jpg", "rb")
+                                attach_image = MIMEImage(file.read())
+                                attach_image.add_header('Content-Disposition', 'attachment; filename = "Alarma"')
+                                msg.attach(attach_image)
 
-                        password = "deteccionobjetos123"''
-
-
-                        # Cerramos conexión
-                        mailServer.close()
-                        server = smtplib.SMTP('smtp.gmail.com: 587')
-
-                        server.starttls()
-
-                        # Login Credentials for sending the mail
-                        server.login(msg['From'], password)
+                                password = "deteccionobjetos123"
 
 
-                        # send the message via the server.
-                        server.sendmail(msg['From'], msg['To'], msg.as_string())
+                                # Cerramos conexión
 
-                        server.quit()
+                                server = smtplib.SMTP('smtp.gmail.com: 587')
+
+                                server.starttls()
+
+                                # Login Credentials for sending the mail
+                                server.login(msg['From'], password)
 
 
+                                # send the message via the server.
+                                server.sendmail(msg['From'], msg['To'], msg.as_string())
 
-
-
-                    #se envia msm con el aviso utilizamdo servicio de aws
-
-                    #se envia por protocolo http  envar aviso utilizamdo servicio de aws
+                                server.quit()
 
 
 
-        #Se Converte de vuelta a BGR para que cv2 pueda desplegarlo en los colores correctos
-        #si es en webcam este procemimiento es diferente que con un video
 
-        out.write(Convertir_BGR(RGBimg))
-        cv2.imshow('frame', RGBimg)
 
+                            #se envia msm con el aviso utilizamdo servicio de aws
+
+                            #se envia por protocolo http  envar aviso utilizamdo servicio de aws
+
+
+
+                #Se Converte de vuelta a BGR para que cv2 pueda desplegarlo en los colores correctos
+                #si es en webcam este procemimiento es diferente que con un video
+                #llama al out para que se escriba la imagen, envia la imagen convertida a bgr
+                out.write(Convertir_BGR(RGBimg))
+                cv2.imshow('frame', RGBimg)
+            except:
+                print("no hay ninguna imagen por el momento")
+                contador = contador - 1
         #se libera el out, la captura y destruye la ventana de opencv donde se estaban mostrando los resulatados
         out.release()
         cap.release()
@@ -257,3 +245,24 @@ if __name__ == "__main__":
         cv2.destroyAllWindows()
 
 # -------------------------------------------------------------------------------------------------------------------------------------- #
+#combierte la imagen a RGB
+def Convertir_RGB(img):
+    # Convertir Blue, green, red a Red, green, blue
+    b = img[:, :, 0].copy()
+    g = img[:, :, 1].copy()
+    r = img[:, :, 2].copy()
+    img[:, :, 0] = r
+    img[:, :, 1] = g
+    img[:, :, 2] = b
+    return img
+
+#combierte la imagen a BGR
+def Convertir_BGR(img):
+    # Convertir red, blue, green a Blue, green, red
+    r = img[:, :, 0].copy()
+    g = img[:, :, 1].copy()
+    b = img[:, :, 2].copy()
+    img[:, :, 0] = b
+    img[:, :, 1] = g
+    img[:, :, 2] = r
+    return img
