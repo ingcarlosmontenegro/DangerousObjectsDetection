@@ -173,6 +173,7 @@ if __name__ == "__main__":
             #    contador = contador - 1
         #se libera el out, la captura y destruye la ventana de opencv donde se estaban mostrando los resulatados
 
+
         cv2.destroyAllWindows()
     else:
         if parametros.webcam==1:
