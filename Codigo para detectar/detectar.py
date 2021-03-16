@@ -151,8 +151,8 @@ if __name__ == "__main__":
                                 msg = MIMEMultipart()
                                 objeto = "{}".format(classes[int(cls_pred)]);
 
-                                msg['From'] = "csrojasm123@gmail.com"
-                                msg['To'] = "csrojasm@correo.udistrital.edu.co"
+                                msg['From'] = "quienEnvia@ejemplo.com"
+                                msg['To'] = "aquienLeLLlega@ejemplo.com"
                                 msg['Subject'] = "ALERTA OBJETO, UNA "+objeto+" HA SIDO VISUALIZADA"
                                 msg.attach(MIMEText("Se ha detectado una "+objeto+" en el recinto, por favor tomas las medidas necesarias para enfretar esta emergencia."))
 
@@ -163,7 +163,7 @@ if __name__ == "__main__":
                                 attach_image.add_header('Content-Disposition', 'attachment; filename = "Alarma"')
                                 msg.attach(attach_image)
 
-                                password = "deteccionobjetos123"
+                                password = "contraseña"
 
 
                                 # Cerramos conexión
@@ -261,8 +261,8 @@ if __name__ == "__main__":
                             msg = MIMEMultipart()
                             objeto = "{}".format(classes[int(cls_pred)]);
 
-                            msg['From'] = "csrojasm123@gmail.com"
-                            msg['To'] = "csrojasm@correo.udistrital.edu.co"
+                            msg['From'] = "quienEnvia@ejemplo.com"
+                            msg['To'] = "aquienLeLlega@ejemplo.com"
                             msg['Subject'] = "ALERTA OBJETO, UNA "+objeto+" HA SIDO VISUALIZADA"
                             msg.attach(MIMEText("Se ha detectado una "+objeto+" en el recinto, por favor tomas las medidas necesarias para enfretar esta emergencia."))
 
@@ -273,7 +273,7 @@ if __name__ == "__main__":
                             attach_image.add_header('Content-Disposition', 'attachment; filename = "Alarma"')
                             msg.attach(attach_image)
 
-                            password = "deteccionobjetos123"
+                            password = "contraseña"
 
                             # Cerramos conexión
 
